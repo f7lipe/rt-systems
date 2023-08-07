@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/Users/f7lipe/Desktop/cyclical/build/CMakeFiles/bootloader
+/Users/f7lipe/Desktop/cyclical/build/CMakeFiles/bootloader.rule
+/Users/f7lipe/Desktop/cyclical/build/CMakeFiles/bootloader-complete.rule
+/Users/f7lipe/Desktop/cyclical/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/Users/f7lipe/Desktop/cyclical/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/Users/f7lipe/Desktop/cyclical/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/Users/f7lipe/Desktop/cyclical/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/Users/f7lipe/Desktop/cyclical/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/Users/f7lipe/Desktop/cyclical/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/Users/f7lipe/Desktop/cyclical/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule

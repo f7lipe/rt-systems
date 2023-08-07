@@ -1,0 +1,38 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "idf.adapterTargetName": "esp32",
+    "idf.customExtraPaths": "/Users/f7lipe/.espressif/tools/xtensa-esp-elf-gdb/12.1_20221002/xtensa-esp-elf-gdb/bin:/Users/f7lipe/.espressif/tools/riscv32-esp-elf-gdb/12.1_20221002/riscv32-esp-elf-gdb/bin:/Users/f7lipe/.espressif/tools/xtensa-esp32-elf/esp-12.2.0_20230208/xtensa-esp32-elf/bin:/Users/f7lipe/.espressif/tools/xtensa-esp32s2-elf/esp-12.2.0_20230208/xtensa-esp32s2-elf/bin:/Users/f7lipe/.espressif/tools/xtensa-esp32s3-elf/esp-12.2.0_20230208/xtensa-esp32s3-elf/bin:/Users/f7lipe/.espressif/tools/riscv32-esp-elf/esp-12.2.0_20230208/riscv32-esp-elf/bin:/Users/f7lipe/.espressif/tools/esp32ulp-elf/2.35_20220830/esp32ulp-elf/bin:/Users/f7lipe/.espressif/tools/openocd-esp32/v0.12.0-esp32-20230419/openocd-esp32/bin:/Users/f7lipe/.espressif/tools/esp-rom-elfs/20230320",
+    "idf.customExtraVars": {
+        "OPENOCD_SCRIPTS": "/Users/f7lipe/.espressif/tools/openocd-esp32/v0.12.0-esp32-20230419/openocd-esp32/share/openocd/scripts",
+        "ESP_ROM_ELF_DIR": "/Users/f7lipe/.espressif/tools/esp-rom-elfs/20230320/"
+    },
+    "idf.espIdfPath": "/Users/f7lipe/esp/esp-idf",
+    "idf.openOcdConfigs": [
+        "board/esp32-bridge.cfg"
+    ],
+    "idf.port": "/dev/cu.usbserial-0001",
+    "idf.pythonBinPath": "/Users/f7lipe/.espressif/python_env/idf5.1_py3.8_env/bin/python",
+    "idf.toolsPath": "/Users/f7lipe/.espressif",
+    "files.associations": {
+        "ui.h": "c",
+        "led.h": "c",
+        "gpio.h": "c",
+        "stdio.h": "c",
+        "esp_dsp.h": "c",
+        "signal.h": "c",
+        "esp_log.h": "c",
+        "string.h": "c",
+        "dsps_view.h": "c",
+        "dsps_dotprod.h": "c",
+        "dsps_d_gen.h": "c",
+        "dsps_fft2r.h": "c",
+        "dspm_mult.h": "c",
+        "dsp_common.h": "c",
+        "dsp_types.h": "c",
+        "dsps_math.h": "c",
+        "dsps_add.h": "c",
+        "dsps_fir.h": "c",
+        "dsps_sub.h": "c"
+    },
+    "idf.flashType": "UART"
+}
