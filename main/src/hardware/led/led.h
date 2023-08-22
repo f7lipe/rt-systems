@@ -1,10 +1,7 @@
-//led.h 
-
 #ifndef LED_H
 #define LED_H
 
-void led_init(void);
-void led_on(void);
-void led_off(void);
+void led_init();
+void led_set(int state);
 
-#endif  // LED_H
+#endif /* LED_H */

@@ -1,34 +1,21 @@
+
 #include "led.h"
-
-#ifdef __ESP_PLATFORM__ 
 #include "driver/gpio.h"
-#define LED_PIN 2
-#else
-#include <stdio.h>
-#endif
+#include "esp_log.h"
 
-void led_init(void) {
-#ifdef __ESP_PLATFORM__
-    gpio_pad_select_gpio(LED_PIN);
-    gpio_set_direction(LED_PIN, GPIO_MODE_OUTPUT);
-    gpio_set_level(LED_PIN, 0); 
-#else
-    printf("LED inicializado no computador.\n");
-#endif
+#define LED_GPIO_PIN 2 
+
+void led_init() {
+    esp_rom_gpio_pad_select_gpio(LED_GPIO_PIN);
+    gpio_set_direction(LED_GPIO_PIN, GPIO_MODE_OUTPUT);
+    gpio_set_level(LED_GPIO_PIN, 0); 
+    ESP_LOGI("LED", "LED initialized");
 }
 
-void led_on(void) {
-#ifdef __ESP_PLATFORM__
-    gpio_set_level(LED_PIN, 1);
-#else
-    printf("LED ligado no computador.\n");
-#endif
-}
-
-void led_off(void) {
-#ifdef __ESP_PLATFORM__
-    gpio_set_level(LED_PIN, 0);
-#else
-    printf("LED desligado no computador.\n");
-#endif
+void led_set(int state) {
+    if (state) {
+        gpio_set_level(LED_GPIO_PIN, 1);
+    } else {
+        gpio_set_level(LED_GPIO_PIN, 0);
+    }
 }
