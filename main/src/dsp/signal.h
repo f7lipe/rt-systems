@@ -1,15 +1,13 @@
-// signal.h
-
 #ifndef SIGNAL_H
 #define SIGNAL_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
-#define FFT_SIZE 1024
+bool signal_detect_presence(int16_t* window);
+void signal_modify_velocity(int16_t* windowModified, int signalVelocity);
+void signal_mix_with_music(int16_t* windowModified, int musicIndex, int* music);
+void signal_play_music();
+float signal_find_higher_power_frequency(int16_t* window);
 
-void signal_init(void);
-void process_signal(float *input_signal, float *output_signal, int signal_length);
-int detect_presence(float *signal, int signal_length, float noise_threshold);
-float calculate_peak_frequency(float *signal, int signal_length, float sample_rate);
-
-#endif  // SIGNAL_H
+#endif /* SIGNAL_H */
