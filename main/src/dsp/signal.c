@@ -6,9 +6,17 @@
 
 static const char *TAG = "DSP";
 
+#define FFT_SIZE 1024
+#define SAMPLE_RATE 16000
 #define WINDOW_SIZE 10
+#define MUSIC_SIZE 1000
 #define Z_SCORE_THRESHOLD 3.0
 #define VREF 0.00002 // Tensão de referência em Volts (20 μPa)
+#define PITCH_SHIFT_1X 1.0
+#define PITCH_SHIFT_2X 2.0
+#define PITCH_SHIFT_4X 4.0
+
+float pitchShift = PITCH_SHIFT_1X; // Valor padrão
 
 float calculate_moving_average(int16_t* data, int window_size) {
     float sum = 0.0;
@@ -59,9 +67,6 @@ bool signal_detect_presence(int16_t* audio_window) {
     } 
     return false;
 }
-
-#define FFT_SIZE 1024
-#define SAMPLE_RATE 16000
 
 float signal_find_higher_power_frequency(int16_t* audio_window) {
     float *power_spectrum = (float *)malloc((FFT_SIZE / 2) * sizeof(float));
@@ -129,47 +134,46 @@ float signal_find_higher_power_frequency(int16_t* audio_window) {
     return frequency;
 }
 
-void signal_modify_velocity(int16_t* audio_window, int signalVelocity) {
-    // Verifique se a velocidade é válida (1x, 2x ou 4x)
-    if (signalVelocity != 1 && signalVelocity != 2 && signalVelocity != 4) {
-        ESP_LOGE(TAG, "Invalid signal velocity: %d", signalVelocity);
-        return;
-    }
+void signal_modify_velocity(int16_t* windowModified, int window_samples, int signalVelocity) {
 
-    // Tamanho da janela de entrada (ajuste conforme necessário)
-    int input_window_size = FFT_SIZE; // Suponha que seja igual ao tamanho da FFT
+    int size = window_samples;
+    int i = 0;
+    int index = 0;
 
-    // Tamanho da janela de saída após a modificação da velocidade
-    int output_window_size = input_window_size / signalVelocity;
+    while (index < size) {
+        int16_t accumulator = 0;
+        accumulator += windowModified[index];
 
-    // Aloque memória para a janela de saída modificada
-    int16_t *output_window = (int16_t *)malloc(output_window_size * sizeof(int16_t));
-    if (output_window == NULL) {
-        ESP_LOGE(TAG, "Memory allocation error");
-        return;
-    }
-
-    // Realize a interpolação linear para modificar a velocidade
-    for (int i = 0; i < output_window_size; i++) {
-        // Calcule o índice correspondente na janela de entrada
-        int input_index = i * signalVelocity;
-
-        // Use interpolação linear para calcular o valor na janela de saída
-        if (input_index >= input_window_size - 1) {
-            output_window[i] = audio_window[input_index];
-        } else {
-            // Parte fracionária do índice
-            float fraction = (float)(i * signalVelocity) - input_index;
-
-            // Interpolação linear
-            output_window[i] = (int16_t)((1.0 - fraction) * audio_window[input_index] +
-                                          fraction * audio_window[input_index + 1]);
+        for (int j = 0; j < signalVelocity - 1; j++) {
+            index++;
+            if (index < size) {
+                accumulator += windowModified[index];
+            }
         }
+
+        index++;
+        windowModified[i] = accumulator;
+        i++;
     }
 
-    // Agora, a janela de saída modificada contém o sinal com a velocidade alterada
-    // Você pode usar output_window conforme necessário no seu projeto
+    for (int j = i; j < size; j++) {
+        windowModified[j] = 0;
+    }
+}
 
-    // Libere a memória alocada
-    free(output_window);
+void signal_mix_with_music(int16_t* windowModified, int musicIndex, int* music) {
+    int size = WINDOW_SIZE;
+    int index = 0;
+
+    while (index < size) {
+        windowModified[index] += music[musicIndex];
+        musicIndex++;
+
+        // Certifique-se de reiniciar o índice da música se atingir o final do array de música.
+        if (musicIndex >= MUSIC_SIZE) {
+            musicIndex = 0;
+        }
+
+        index++;
+    }
 }

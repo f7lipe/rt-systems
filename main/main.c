@@ -1,6 +1,7 @@
 #include "src/ui/ui.h"
 #include "src/hardware/microphone/mic.h"
 #include "src/dsp/signal.h"
+#include "src/hardware/button/buttons.h"
 #include "esp_log.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -21,6 +22,16 @@ int newPotency = 0;
 int signalVelocity = 1;
 int musicIndex = 0;
 
+void update_button_state() {
+    if (button_is_pressed()) {
+        // Botão está pressionado, atualize o estado conforme necessário
+        // Exemplo: Ciclo entre 1x, 2x, 3x, 4x e depois volte para 1x
+        signalVelocity = (signalVelocity % 4) + 1;
+        ESP_LOGI("BUTTON", "Button pressed, velocity is now %dx", signalVelocity);
+    }
+}
+
+
 void app_main(void) {
 
     ui_init();
@@ -31,8 +42,8 @@ void app_main(void) {
     while (1) {
         mic_read_data(buffer, N_WINDOW_ELEMENTS);
 
-        // Copie o buffer para a janela (window) e realize as operações de processamento de sinal
-        // com as funções definidas em signal.c
+        update_button_state();
+        signal_modify_velocity(buffer, N_WINDOW_ELEMENTS, signalVelocity);
 
         bool presence = signal_detect_presence(buffer);
         float higherPowerFrequency = signal_find_higher_power_frequency(buffer);

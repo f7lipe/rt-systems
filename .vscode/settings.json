@@ -32,7 +32,12 @@
         "dsps_math.h": "c",
         "dsps_add.h": "c",
         "dsps_fir.h": "c",
-        "dsps_sub.h": "c"
+        "dsps_sub.h": "c",
+        "esp_a2dp_api.h": "c",
+        "esp_bt_main.h": "c",
+        "esp_bt.h": "c",
+        "bluetooth.h": "c",
+        "buttons.h": "c"
     },
     "idf.flashType": "UART"
 }
