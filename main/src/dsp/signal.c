@@ -9,14 +9,9 @@ static const char *TAG = "DSP";
 #define FFT_SIZE 1024
 #define SAMPLE_RATE 16000
 #define WINDOW_SIZE 10
-#define MUSIC_SIZE 1000
+#define MUSIC_SIZE 1024
 #define Z_SCORE_THRESHOLD 3.0
 #define VREF 0.00002 // Tensão de referência em Volts (20 μPa)
-#define PITCH_SHIFT_1X 1.0
-#define PITCH_SHIFT_2X 2.0
-#define PITCH_SHIFT_4X 4.0
-
-float pitchShift = PITCH_SHIFT_1X; // Valor padrão
 
 float calculate_moving_average(int16_t* data, int window_size) {
     float sum = 0.0;
@@ -161,19 +156,14 @@ void signal_modify_velocity(int16_t* windowModified, int window_samples, int sig
     }
 }
 
-void signal_mix_with_music(int16_t* windowModified, int musicIndex, int* music) {
-    int size = WINDOW_SIZE;
-    int index = 0;
+int musicIndex = 0;
 
-    while (index < size) {
-        windowModified[index] += music[musicIndex];
-        musicIndex++;
-
-        // Certifique-se de reiniciar o índice da música se atingir o final do array de música.
-        if (musicIndex >= MUSIC_SIZE) {
-            musicIndex = 0;
+void signal_mix_with_music(int16_t *audio_window, int audio_length, int16_t *music, int music_length, int mix_level) {
+    for (int i = 0; i < audio_length; i++) {
+        if (i < music_length) {
+            // Misture o sinal de áudio com a música de fundo
+            audio_window[i] = (audio_window[i] + music[i] * mix_level) / (mix_level + 1);
         }
-
-        index++;
     }
 }
+

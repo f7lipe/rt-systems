@@ -37,7 +37,18 @@
         "esp_bt_main.h": "c",
         "esp_bt.h": "c",
         "bluetooth.h": "c",
-        "buttons.h": "c"
+        "buttons.h": "c",
+        "math.h": "c",
+        "audio_utils.h": "c",
+        "esp_gap_ble_api.h": "c",
+        "esp_spiffs.h": "c",
+        "endian.h": "c",
+        "esp_bt_device.h": "c",
+        "nvs_flash.h": "c",
+        "esp_gap_bt_api.h": "c",
+        "i2s.h": "c",
+        "esp_avrc_api.h": "c",
+        "esp_system.h": "c"
     },
     "idf.flashType": "UART"
 }
