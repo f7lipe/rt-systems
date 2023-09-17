@@ -9,7 +9,7 @@
 #define FRAME_RATE 16000          // Taxa de amostragem (16kHz)
 #define N_WINDOW_ELEMENTS 1024    // Tamanho da janela de amostragem
 
-void mic_init() {
+bool mic_init() {
     i2s_config_t i2s_config = {
         .mode = I2S_MODE_MASTER | I2S_MODE_RX,
         .sample_rate = FRAME_RATE,
@@ -29,9 +29,14 @@ void mic_init() {
         .data_in_num = SD_PORT,
     };
 
-    i2s_driver_install(I2S_NUM, &i2s_config, 0, NULL);
-    i2s_set_pin(I2S_NUM, &pin_config);
+    esp_err_t err = i2s_driver_install(I2S_NUM, &i2s_config, 0, NULL);
+    esp_err_t err2 = i2s_set_pin(I2S_NUM, &pin_config);
+    if (err != ESP_OK || err2 != ESP_OK) {
+        ESP_LOGE("MIC", "Failed to install I2S driver (%s)", esp_err_to_name(err));
+        return false;
+    }
     ESP_LOGI("MIC", "Microphone initialized");
+    return true;
 }
 
 void mic_read_data(int16_t* buffer, int buffer_samples) {

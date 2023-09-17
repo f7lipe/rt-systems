@@ -5,6 +5,7 @@ idf_component_register(SRCS
                         "src/hardware/display/display.c"  # Inclua o arquivo display.c
                         "src/hardware/microphone/mic.c" # Inclua o arquivo mic.c
                         "src/hardware/bluetooth/bluetooth.c" # Inclua o arquivo bluetooth.c
+                        "src/hardware/bluetooth/bt_app_core.c" # Inclua o arquivo bt_app_core.c
                         "src/hardware/button/buttons.c" # Inclua o arquivo buttons.c
                         "src/dsp/signal.c" # Inclua o arquivo signal.c
                         "src/utils/audio_utils.c" # Inclua o arquivo audio_utils.c
@@ -22,5 +23,6 @@ idf_component_register(SRCS
                     REQUIRES nvs_flash
                     REQUIRES bt
                     REQUIRES driver
-                    REQUIRES spiffs)
-spiffs_create_partition_image(storage ../spiffs_data FLASH_IN_PROJECT)
+                    )
+                    #REQUIRES spiffs
+#spiffs_create_partition_image(storage ../spiffs_data FLASH_IN_PROJECT)

@@ -48,7 +48,8 @@
         "esp_gap_bt_api.h": "c",
         "i2s.h": "c",
         "esp_avrc_api.h": "c",
-        "esp_system.h": "c"
+        "esp_system.h": "c",
+        "bt_app_core.h": "c"
     },
     "idf.flashType": "UART"
 }

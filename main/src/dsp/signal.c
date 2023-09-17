@@ -158,12 +158,18 @@ void signal_modify_velocity(int16_t* windowModified, int window_samples, int sig
 
 int musicIndex = 0;
 
-void signal_mix_with_music(int16_t *audio_window, int audio_length, int16_t *music, int music_length, int mix_level) {
-    for (int i = 0; i < audio_length; i++) {
-        if (i < music_length) {
-            // Misture o sinal de áudio com a música de fundo
-            audio_window[i] = (audio_window[i] + music[i] * mix_level) / (mix_level + 1);
-        }
+void signal_mix_with_music(int16_t *audio_data, int32_t len)
+{
+    // Verifique se os dados de áudio e o comprimento são válidos
+    if (audio_data == NULL || len <= 0)
+    {
+        return;
+    }
+
+    // Criar um sinal simulado semelhante ao criado em bt_app_a2d_data_cb
+    for (int i = 0; i < len; i++)
+    {
+        audio_data[i] += (rand() % (1 << 10)); // Adicione o sinal simulado ao áudio
     }
 }
 

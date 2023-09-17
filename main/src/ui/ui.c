@@ -2,12 +2,15 @@
 #include "src/hardware/led/led.h"
 #include "src/hardware/display/display.h"
 #include "src/hardware/button/buttons.h"
+#include "esp_log.h"
 
-void ui_init() {
+bool ui_init() {
     // Inicializar o display e o LED e o botão aqui
     led_init();
     display_init();
     buttons_init();
+    ESP_LOGI("UI", "UI initialized");
+    return true;
 }
 
 void ui_update_display(float frequency) {

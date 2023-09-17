@@ -4,7 +4,13 @@
 #include <stdint.h>
 #include <stddef.h>
 
-void audio_utils_init();
-void audio_utils_load_wav(const char* filename, int16_t** audio_data, size_t* audio_size);
+#define AUDIO_DATA_SIZE 1024 // Tamanho dos buffers de áudio
+
+typedef struct {
+    int16_t real_data[AUDIO_DATA_SIZE];
+    int16_t simulated_data[AUDIO_DATA_SIZE];
+} AudioData;
+
+extern AudioData audio_data;
 
 #endif

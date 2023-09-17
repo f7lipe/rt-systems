@@ -10,7 +10,10 @@
 bool bluetooth_init();
 
 // Envie dados de áudio Bluetooth
-void bluetooth_send_audio_data(uint8_t *data, size_t len);
+
+
+// Verifique se o dispositivo Bluetooth está conectado
+bool bluetooth_is_connected();
 
 // Limpeza do módulo Bluetooth
 void bluetooth_cleanup();
