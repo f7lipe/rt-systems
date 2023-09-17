@@ -4,8 +4,9 @@
 #include "src/hardware/button/buttons.h"
 #include "esp_log.h"
 
+static const char *TAG = "UI";
+
 bool ui_init() {
-    // Inicializar o display e o LED e o botão aqui
     led_init();
     display_init();
     buttons_init();
@@ -14,7 +15,7 @@ bool ui_init() {
 }
 
 void ui_update_display(float frequency) {
-    // Atualizar o display com a frequência
+    ESP_LOGI(TAG, "Higher power frequency found: %.2f Hz", frequency);
 }
 
 void ui_update_led(int signal) {

@@ -2,9 +2,9 @@
 #include <driver/i2s.h>
 #include "esp_log.h"
 
-#define WS_IO_PORT 25
-#define SD_PORT 34
-#define SCK_PORT 26
+#define WS_IO_PORT 22
+#define SD_PORT 25
+#define SCK_PORT 23
 #define I2S_NUM I2S_NUM_0        // Número da interface I2S a ser usada
 #define FRAME_RATE 16000          // Taxa de amostragem (16kHz)
 #define N_WINDOW_ELEMENTS 1024    // Tamanho da janela de amostragem
