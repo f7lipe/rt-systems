@@ -25,6 +25,12 @@ void tarefaLeituraMicrofone(void *param) {
     while (1) {
         if (bluetooth_is_connected()) {
             mic_read_data(buffer, N_WINDOW_ELEMENTS);
+
+
+                for (int i = 0; i < N_WINDOW_ELEMENTS; i++)
+                {
+                     audio_data.real_data[i] = buffer[i];
+                }
         }
         vTaskDelay(pdMS_TO_TICKS(64)); // Período de leitura do microfone: 64 ms
     }
