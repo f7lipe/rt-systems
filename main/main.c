@@ -1,132 +1,104 @@
 #include "esp_log.h"
-#include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdint.h>
 #include "src/hardware/bluetooth/bluetooth.h"
 #include "src/hardware/microphone/mic.h"
 #include "src/hardware/button/buttons.h"
 #include "src/utils/audio_utils.h"
 #include "src/dsp/signal.h"
 #include "src/ui/ui.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
+#include "esp_timer.h"
 
 #define N_WINDOW_ELEMENTS 1024
 int signalVelocity = 1;
 int16_t buffer[N_WINDOW_ELEMENTS];
 
-// Declaração das variáveis globais para presence e higherPowerFrequency
 bool presence;
 float higherPowerFrequency;
 
-// Defina as tarefas
-void tarefaLeituraMicrofone(void *param) {
-    while (1) {
-        if (bluetooth_is_connected()) {
-            mic_read_data(buffer, N_WINDOW_ELEMENTS);
+#define PERIOD_MICROPHONE_READ 64
+#define PERIOD_VELOCITY_MODIFY 128
+#define PERIOD_SIGNAL_PRESENCE 128
+#define PERIOD_FIND_FREQUENCY 64
+#define PERIOD_UPDATE_DISPLAY 256
+#define PERIOD_UPDATE_LED 512
 
 
-                for (int i = 0; i < N_WINDOW_ELEMENTS; i++)
-                {
-                     audio_data.real_data[i] = buffer[i];
-                }
-        }
-        vTaskDelay(pdMS_TO_TICKS(64)); // Período de leitura do microfone: 64 ms
-    }
-}
-
-void tarefaModificacaoVelocidade(void *param) {
-    while (1) {
-        if (bluetooth_is_connected()) {
-            signal_modify_velocity(buffer, N_WINDOW_ELEMENTS, signalVelocity);
-        }
-        vTaskDelay(pdMS_TO_TICKS(128)); // Período de modificação da velocidade: 128 ms
-    }
-}
-
-void tarefaDetecaoPresencaSinal(void *param) {
-    while (1) {
-        if (bluetooth_is_connected()) {
-            presence = signal_detect_presence(buffer);
-            // Faça algo com a detecção de presença
-        }
-        vTaskDelay(pdMS_TO_TICKS(128)); // Período de detecção de presença de sinal: 128 ms
-    }
-}
-
-void tarefaEncontrarFrequencia(void *param) {
-    while (1) {
-        if (bluetooth_is_connected()) {
-            higherPowerFrequency = signal_find_higher_power_frequency(buffer);
-            // Faça algo com a frequência encontrada
-        }
-        vTaskDelay(pdMS_TO_TICKS(64)); // Período de encontrar a frequência com maior potência: 64 ms
-    }
-}
-
-void tarefaAtualizacaoDisplay(void *param) {
-    while (1) {
-        if (bluetooth_is_connected()) {
-            ui_update_display(higherPowerFrequency);
-        }
-        vTaskDelay(pdMS_TO_TICKS(256)); // Período de atualização do display: 256 ms
-    }
-}
-
-void tarefaAtualizacaoLED(void *param) {
-    while (1) {
-        if (bluetooth_is_connected()) {
-            ui_update_led(presence);
-        }
-        vTaskDelay(pdMS_TO_TICKS(512)); // Período de atualização do LED: 512 ms
-    }
-}
+// rastrear o tempo de execução das tarefas
+uint64_t lastMicrophoneReadTime = 0;
+uint64_t lastVelocityModifyTime = 0;
+uint64_t lastSignalPresenceTime = 0;
+uint64_t lastFindFrequencyTime = 0;
+uint64_t lastUpdateDisplayTime = 0;
+uint64_t lastUpdateLedTime = 0;
 
 void update_button_state()
 {
     if (button_is_pressed())
     {
-        signalVelocity = (signalVelocity % 4) + 1;
-        ESP_LOGI("BUTTON", "Button pressed, velocity is now %dx", signalVelocity);
+        //signalVelocity = (signalVelocity % 4) + 1;
+        //ESP_LOGI("BUTTON", "Button pressed, velocity is now %dx", signalVelocity);
     }
 }
 
 void app_main(void)
 {
-    // FIFO
-    QueueHandle_t filaTarefas = xQueueCreate(10, sizeof(void *));
+    mic_init();
+    ui_init();
+    bluetooth_init();
 
-    if (mic_init() && ui_init() && bluetooth_init())
+    while (1)
     {
-        // TODO: Criar as tarefas na CPU 1
-        xTaskCreate(tarefaLeituraMicrofone, "LeituraMicrofone", 2048, NULL, 1, NULL);
-        xTaskCreate(tarefaModificacaoVelocidade, "ModificacaoVelocidade", 2048, NULL, 1, NULL);
-        xTaskCreate(tarefaDetecaoPresencaSinal, "DetecaoPresencaSinal", 2048, NULL, 1, NULL);
-        xTaskCreate(tarefaEncontrarFrequencia, "EncontrarFrequencia", 2048, NULL, 1, NULL);
-        xTaskCreate(tarefaAtualizacaoDisplay, "AtualizacaoDisplay", 2048, NULL, 1, NULL);
-        xTaskCreate(tarefaAtualizacaoLED, "AtualizacaoLED", 2048, NULL, 1, NULL);
+        uint64_t currentTime = esp_timer_get_time();
 
-        // TODO: Definir o período de cada tarefa
-        const TickType_t periodos[] = {
-            pdMS_TO_TICKS(64),  // Leitura do Microfone: 64 ms
-            pdMS_TO_TICKS(128), // Modificação da Velocidade: 128 ms
-            pdMS_TO_TICKS(128), // Detecção de Presença de Sinal: 128 ms
-            pdMS_TO_TICKS(64),  // Encontrar Frequência com Maior Potência: 64 ms
-            pdMS_TO_TICKS(256), // Atualização do Display: 256 ms
-            pdMS_TO_TICKS(512)  // Atualização do LED: 512 ms
-        };
-
-        int i = 0;
-        while (1)
+        if (bluetooth_is_connected())
         {
-            // Add próxima tarefa na fila
-            xQueueSendToBack(filaTarefas, &i, portMAX_DELAY);
+            // 64 ms
+            if (currentTime - lastMicrophoneReadTime >= (PERIOD_MICROPHONE_READ / 1000))
+            {
+                mic_read_data(buffer, N_WINDOW_ELEMENTS);
+                lastMicrophoneReadTime = currentTime;
+            }
 
-            vTaskDelay(periodos[i]);
+            // 128 ms
+            if (currentTime - lastVelocityModifyTime >= (PERIOD_VELOCITY_MODIFY / 1000))
+            {
+                //signal_modify_velocity(buffer, N_WINDOW_ELEMENTS, signalVelocity);
+                lastVelocityModifyTime = currentTime;
+            }
 
-            i = (i + 1) % 6; // Alternar enre as 6 tarefas 
+            // 128 ms
+            if (currentTime - lastSignalPresenceTime >= (PERIOD_SIGNAL_PRESENCE / 1000))
+            {
+                presence = signal_detect_presence(buffer);
+                lastSignalPresenceTime = currentTime;
+            }
+
+            // 64 ms
+            if (currentTime - lastFindFrequencyTime >= (PERIOD_FIND_FREQUENCY / 1000))
+            {
+                higherPowerFrequency = signal_find_higher_power_frequency(buffer);
+                lastFindFrequencyTime = currentTime;
+            }
+
+            // 256 ms
+            if (currentTime - lastUpdateDisplayTime >= (PERIOD_UPDATE_DISPLAY / 1000))
+            {
+                ui_update_display(higherPowerFrequency);
+                lastUpdateDisplayTime = currentTime;
+            }
+
+            // 512 ms
+            if (currentTime - lastUpdateLedTime >= (PERIOD_UPDATE_LED / 1000))
+            {
+                ui_update_led(presence);
+                lastUpdateLedTime = currentTime;
+            }
         }
-        bluetooth_cleanup();
+
+        // Verificação de botão (fora da condição Bluetooth)
+        update_button_state();
     }
 }

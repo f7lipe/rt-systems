@@ -29,8 +29,6 @@
 static bool bluetooth_initialized = false;
 
 #define I2S_NUM (0) // Use I2S0 para a saída de áudio
-#define SAMPLE_RATE (44100)
-#define SAMPLE_BITS (16)
 #define CHANNELS (2) // Estéreo
 
 /* log tags */
@@ -38,7 +36,7 @@ static bool bluetooth_initialized = false;
 #define BT_RC_CT_TAG "RC_CT"
 
 /* device name */
-#define TARGET_DEVICE_NAME "JBL Go 3"
+#define TARGET_DEVICE_NAME "BS12 speaker" //BS12 speaker
 #define LOCAL_DEVICE_NAME "ESP_A2DP_SRC"
 #define BT_TAG "BLUETOOTH"
 #define BT_DEVICE_NAME "MEU_DISPOSITIVO_BT"
@@ -377,29 +375,33 @@ int16_t generate_sine_sample()
 }
 
 /* Função para preencher o buffer de áudio com dados gerados */
-static int32_t bt_app_a2d_data_cb(uint8_t *audio_buffer, int32_t buffer_len)
-{
-    if (audio_buffer == NULL || buffer_len < 0)
-    {
+static int32_t bt_app_a2d_data_cb(uint8_t *audio_buffer, int32_t buffer_len) {
+    if (audio_buffer == NULL || buffer_len < 0) {
         return 0;
     }
 
-    for (int i = 0; i < (buffer_len >> 2); i++)
-    {
-        int16_t sample = generate_sine_sample() //+ audio_data.real_data[i];
+    for (int i = 0; i < buffer_len / 4; i++) {
+        int16_t sample = peek(&queueOut); // Obtenha a amostra da fila
+
+        if (sample == -1) {
+            // A fila está vazia, você pode tomar uma ação apropriada, como preencher com zeros
+            // ou retornar um erro.
+            // ...
+
+            return buffer_len;
+        }
+
+        dequeue(&queueOut); // Remova a amostra da fila
 
         audio_buffer[i * 4 + 0] = (uint8_t)(sample & 0x00FF);
         audio_buffer[i * 4 + 1] = (uint8_t)(sample >> 8 & 0x00FF);
         audio_buffer[i * 4 + 2] = (uint8_t)(sample & 0x00FF);
         audio_buffer[i * 4 + 3] = (uint8_t)(sample >> 8 & 0x00FF);
-        audio_buffer_index++;
-        if (audio_buffer_index >= 735)
-        {
-            audio_buffer_index = 0;
-        }
     }
+
     return buffer_len;
 }
+
 
 
 
